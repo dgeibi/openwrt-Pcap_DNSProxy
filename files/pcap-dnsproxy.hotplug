@@ -1,8 +1,10 @@
 #!/bin/sh
 
-enabled=$(uci -q get pcap-dnsproxy.@pcap-dnsproxy[0].enabled)
-[ "1" = "$enabled" -o "on" = "$enabled" -o "true" = "$enabled" ] || exit 0
 [ "$INTERFACE" = wan ] || exit 0
+
+enabled=$(uci -q get pcap-dnsproxy.@pcap-dnsproxy[0].enabled)
+[ "1" = "$enabled" ] || [ "on" = "$enabled" ] || [ "true" = "$enabled" ] || exit 0
+
 [ "$ACTION" = ifup ] && {
 	sleep 5
 	logger -p daemon.info -t "Pcap_DNSProxy" \
@@ -10,8 +12,10 @@ enabled=$(uci -q get pcap-dnsproxy.@pcap-dnsproxy[0].enabled)
 	/etc/init.d/pcap-dnsproxy start
 	exit 0
 }
+
 [ "$ACTION" = ifdown ] && {
 	logger -p daemon.info -t "Pcap_DNSProxy" \
 		"Shutdown request sent due to '$ACTION' of 'wan'"
 	/etc/init.d/pcap-dnsproxy stop
+	exit 0
 }
